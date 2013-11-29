@@ -8,7 +8,9 @@
 --
 -- DATE: 		October 23, 2013
 --
--- REVISIONS: 	none
+-- REVISIONS: 	November 27, 2013
+--				Andrew Burian
+--				Removed all global variables and replaced with defines and SHARED_DATA_POINTERS struct.
 --
 -- DESIGNER: 	Andrew Burian
 --
@@ -80,13 +82,13 @@ struct SHARED_DATA_POINTERS{
 	queue<BYTE> *p_quOutputQueue;
 	queue<BYTE> *p_quInputQueue;
 	BOOL *p_bProgramDone;
-	PTSTR p_outFileName;
+	LPCSTR p_outFileName;
 };
 
 // GUI functionallity
 // ----------------------------------------------------------------------------
 
-VOID SetupGUI(HWND edit);
+VOID SetupGUI(HWND main, HWND edit);
 VOID GUI_Text(LPCSTR text);
 VOID GUI_Sent();
 VOID GUI_Received();

@@ -5,13 +5,13 @@
 #define READ_ERROR		4
 
 
-HANDLE hEndProgram = CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
-HANDLE hDataRecieved = CreateEvent(NULL, FALSE, FALSE, EVENT_DATA_RECEIVED);
+HANDLE hEndProgram		= CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
+HANDLE hDataRecieved	= CreateEvent(NULL, FALSE, FALSE, EVENT_DATA_RECEIVED);
 HANDLE hBadDataRecieved = CreateEvent(NULL, FALSE, FALSE, EVENT_BAD_DATA_RECEIVED);
-HANDLE hAck = CreateEvent(NULL, FALSE, FALSE, EVENT_ACK);
-HANDLE hNak = CreateEvent(NULL, FALSE, FALSE, EVENT_NAK);
-HANDLE hEot = CreateEvent(NULL, FALSE, FALSE, EVENT_EOT);
-HANDLE hEnq = CreateEvent(NULL, FALSE, FALSE, EVENT_ENQ);
+HANDLE hAck				= CreateEvent(NULL, FALSE, FALSE, EVENT_ACK);
+HANDLE hNak				= CreateEvent(NULL, FALSE, FALSE, EVENT_NAK);
+HANDLE hEot				= CreateEvent(NULL, FALSE, FALSE, EVENT_EOT);
+HANDLE hEnq				= CreateEvent(NULL, FALSE, FALSE, EVENT_ENQ);
 
 byte input[1024] = { NULL };
 

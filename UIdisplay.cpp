@@ -2,9 +2,14 @@
 
 int sent = 0, received = 0, lost = 0;
 
-VOID SetupGUI(HWND edit)
+VOID SetupGUI(HWND main, HWND edit)
 {
 	
+}
+
+VOID GUI_Text(LPCSTR text)
+{
+
 }
 
 VOID update()

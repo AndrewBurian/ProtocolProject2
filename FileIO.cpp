@@ -1,7 +1,26 @@
 #include "BCP.h"
 #include <queue>
 
-//take 'file name', read file to queue one byte at a time.
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION: FileBufferThread
+--
+-- DATE: November 19, 2013
+--
+-- REVISIONS: (Date and Description)
+--
+-- DESIGNER: Chris Holisky
+--
+-- PROGRAMMER: Chris Holisky
+--
+-- INTERFACE: DWORD WINAPI FileBufferThread(LPVOID threadParams)
+-- LPVOID threadParams : Pointer to struct that will contain file name
+--
+-- RETURNS: returns 0 on success;
+-- 
+-- NOTES:
+-- This function is used to write the file to be sent into the output queue.
+--
+----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI FileBufferThread(LPVOID threadParams)
 {
 	LPCSTR fileName = ((SHARED_DATA_POINTERS*)threadParams)->p_outFileName;
@@ -28,5 +47,5 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 	}	
 	free (pBuffer) ;
 
-	return TRUE ;
+	return 0;
 }

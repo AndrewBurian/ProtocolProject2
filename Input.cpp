@@ -1,3 +1,26 @@
+/*------------------------------------------------------------------------------------------------------------------
+-- SOURCE FILE:	Inut.cpp		The thread and functions that will continuously monitor
+--								the serial port for incoming data and trigger the correct
+--								events.
+-- PROGRAM:		BCP
+--
+-- FUNCTIONS:
+--	int ReadIn(byte* frame, unsigned len, DWORD wait);
+--	VOID FillDataFrame();
+--	VOID ReadCtrl();
+--	DWORD WINAPI SerialReadThread(LPVOID threadParams);
+--
+-- DATE: 		November 02, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- NOTES:
+-- 
+----------------------------------------------------------------------------------------------------------------------*/
 #include "BCP.h"
 #define READ_COMPLETE	1
 #define READ_TIMEOUT	2
@@ -21,12 +44,33 @@ HANDLE *hInputCommPort = NULL;
 BOOL *bProgramDone = NULL;
 queue<byte>* quInputQueue = NULL;
 
+
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	ReadIn
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	int ReadIn (byte* frame, unsigned len, DWORD wait)
+--
+-- RETURNS: 	int
+--
+-- NOTES:
+-- Reads in the desired number of bytes (len) into the buffer (frame) for up to the timeout (wait).
+-- Event driven and non-blocking internally. Function will however block until the event has been triggered
+-- or the timeout has elapsed.
+----------------------------------------------------------------------------------------------------------------------*/
 int ReadIn(byte* frame, unsigned len, DWORD wait)
 {
 	OVERLAPPED ovrReadPort = { 0 };
 	ovrReadPort.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	// Start Async write
+	// Start Async Read
 
 	ReadFile(hInputCommPort, frame, len, NULL, &ovrReadPort);
 
@@ -51,7 +95,28 @@ int ReadIn(byte* frame, unsigned len, DWORD wait)
 	return READ_ERROR;
 }
 
-
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	FillDataFrame
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	void FillDataFrame()
+--
+-- RETURNS: 	void
+--
+-- NOTES:
+-- Uses ReadIn to attempt to read a full data frame into the buffer.
+-- Then checks if the frame is a duplicate of a previous frame.
+-- Then checks the CRC is valid.
+-- If it is not a duplicate, and the CRC is valid, it will set the dataReceived event and read the content
+-- of the frame into the input queue.
+----------------------------------------------------------------------------------------------------------------------*/
 VOID FillDataFrame()
 {
 	// fill the frame even if it's a duplicate to clear the buffer
@@ -101,6 +166,26 @@ VOID FillDataFrame()
 	return;
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	ReadControl
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	void ReadCtrl()
+--
+-- RETURNS: 	void
+--
+-- NOTES:
+-- Uses ReadIn to attempt to read the control portion of a frame into the buffer
+-- Depending on the control character recieved, it will either call FillDataFrame
+-- or it will signal the corresponding control event.
+----------------------------------------------------------------------------------------------------------------------*/
 VOID ReadCtrl()
 {
 	switch (ReadIn(&input[1], 1, TIMEOUT))
@@ -142,6 +227,26 @@ VOID ReadCtrl()
 	return;
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SerialReadThread
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	DWORD WINAPI SerialReadThread(LPVOID threadParams)
+--
+-- RETURNS: 	DWORD
+--
+-- NOTES:
+-- Continuously attempts to read one character from the serial port while the 
+-- program is still running.
+-- If it reads a SYN, calls ReadCtrl to continue logic.
+----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI SerialReadThread(LPVOID threadParams)
 {
 	SHARED_DATA_POINTERS* dat = (SHARED_DATA_POINTERS*)threadParams;

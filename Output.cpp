@@ -33,6 +33,24 @@ int SOTval = 1;
 queue<BYTE> *quOutputQueue = NULL;
 HANDLE *hOutputCommPort = NULL;
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	WriteOut
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL WriteOut
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Syncronously writes the buffer (frame) to length (len) to the serial port.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL WriteOut(byte* frame, unsigned len)
 {
 
@@ -59,6 +77,24 @@ BOOL WriteOut(byte* frame, unsigned len)
 	*/
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	Resend
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL Resend()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Sends the previously sent frame again using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL Resend()
 {
 	if (dataFrame[0] == NULL)
@@ -72,6 +108,24 @@ BOOL Resend()
 	return WriteOut(dataFrame, 1024);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SendNext
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL SendNext()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Packetizes and sends a new data frame using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL SendNext()
 {
 	// check for no data to send
@@ -118,6 +172,24 @@ BOOL SendNext()
 	return WriteOut(dataFrame, 1024);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SendACK
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL SendACK()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Sends and ACK using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL SendACK()
 {
 	ctrlFrame[0] = SYN;
@@ -125,6 +197,24 @@ BOOL SendACK()
 	return WriteOut(ctrlFrame, 2);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SendNAK
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL SendNAK()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Sends a NAK using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL SendNAK()
 {
 	ctrlFrame[0] = SYN;
@@ -132,6 +222,24 @@ BOOL SendNAK()
 	return WriteOut(ctrlFrame, 2);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SendENQ
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL SendENQ()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Sends and ENQ using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL SendENQ()
 {
 	ctrlFrame[0] = SYN;
@@ -139,6 +247,24 @@ BOOL SendENQ()
 	return WriteOut(ctrlFrame, 2);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SendEOT
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	BOOL SendEOT()
+--
+-- RETURNS: 	BOOL
+--
+-- NOTES:
+-- Sends and EOT using WriteOut.
+----------------------------------------------------------------------------------------------------------------------*/
 BOOL SendEOT()
 {
 	ctrlFrame[0] = SYN;
@@ -147,6 +273,24 @@ BOOL SendEOT()
 	return WriteOut(ctrlFrame, 2);
 }
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	SetupOutput
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	VOID SetupOutput()
+--
+-- RETURNS: 	VOID
+--
+-- NOTES:
+-- Sets up the output with pointers to the output queue and a handle to the comm port.
+----------------------------------------------------------------------------------------------------------------------*/
 VOID SetupOutput(SHARED_DATA_POINTERS* dat)
 {
 	quOutputQueue = dat->p_quInputQueue;

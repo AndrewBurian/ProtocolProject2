@@ -1,5 +1,8 @@
+#include <commdlg.h> //might need this
+static OPENFILENAME ofn ; //do need this
 
-void PopFileInitialize (HWND hwnd)
+
+void FileInitialize (HWND hwnd)
 {
 	static TCHAR szFilter[] = TEXT ("Text Files (*.TXT)\0*.txt\0")  
 		TEXT ("ASCII Files (*.ASC)\0*.asc\0")  
@@ -27,7 +30,7 @@ void PopFileInitialize (HWND hwnd)
 	ofn.lpTemplateName    = NULL ;
 }
 
-BOOL PopFileOpenDlg (HWND hwnd, PTSTR pstrFileName/*, PTSTR pstrTitleName*/)
+BOOL FileOpenDlg (HWND hwnd, PTSTR pstrFileName/*, PTSTR pstrTitleName*/)
 {
 	ofn.hwndOwner         = hwnd ;
 	ofn.lpstrFile         = pstrFileName ;

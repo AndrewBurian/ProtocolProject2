@@ -1,6 +1,5 @@
 ﻿/*------------------------------------------------------------------------------------------------------------------
--- SOURCE FILE: WindowMain.cpp		Responsible for setting up the program and initializing
---									any global variables.
+-- SOURCE FILE: WindowMain.cpp		Responsible for setting up the program.
 --
 -- PROGRAM:		BCP
 --
@@ -13,14 +12,33 @@
 --
 -- DESIGNER: 	Andrew Burian
 --
--- PROGRAMMER: 	
+-- PROGRAMMER: 	Andrew Burian
 --
 -- NOTES:
--- 
+-- Project must be in Unicode to accomodate the window title
 ----------------------------------------------------------------------------------------------------------------------*/
 
 #include "BCP.h"
 
+/*------------------------------------------------------------------------------------------------------------------
+-- FUNCTION:	WinMain
+--
+-- DATE: 		November 2, 2013
+--
+-- REVISIONS: 	none
+--
+-- DESIGNER: 	Andrew Burian
+--
+-- PROGRAMMER: 	Andrew Burian
+--
+-- INTERFACE: 	int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
+--				LPSTR lspszCmdParam, int nCmdShow)
+--
+-- RETURNS: 	int
+--
+-- NOTES:
+-- Entry point for the program
+----------------------------------------------------------------------------------------------------------------------*/
 int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hprevInstance,
 	LPSTR lspszCmdParam, int nCmdShow)
 {

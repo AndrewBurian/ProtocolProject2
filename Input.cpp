@@ -29,8 +29,8 @@
 
 
 HANDLE hEndProgram		= CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
-HANDLE hDataRecieved	= CreateEvent(NULL, FALSE, FALSE, EVENT_DATA_RECEIVED);
-HANDLE hBadDataRecieved = CreateEvent(NULL, FALSE, FALSE, EVENT_BAD_DATA_RECEIVED);
+HANDLE hDataReceived	= CreateEvent(NULL, FALSE, FALSE, EVENT_DATA_RECEIVED);
+HANDLE hBadDataReceived = CreateEvent(NULL, FALSE, FALSE, EVENT_BAD_DATA_RECEIVED);
 HANDLE hAck				= CreateEvent(NULL, FALSE, FALSE, EVENT_ACK);
 HANDLE hNak				= CreateEvent(NULL, FALSE, FALSE, EVENT_NAK);
 HANDLE hEot				= CreateEvent(NULL, FALSE, FALSE, EVENT_EOT);
@@ -134,8 +134,8 @@ VOID FillDataFrame()
 	// fill success, is it a duplicate?
 	if (input[1] != expected)
 	{
-		// yes duplicate. Signal we recieved it and abandon it.
-		SetEvent(hDataRecieved);
+		// yes duplicate. Signal we received it and abandon it.
+		SetEvent(hDataReceived);
 		return;
 	}
 
@@ -143,14 +143,14 @@ VOID FillDataFrame()
 	if (!CheckCRC(input, &input[1022]))
 	{
 		// bad CRC, signal for bad data and abandon.
-		SetEvent(hBadDataRecieved);
+		SetEvent(hBadDataReceived);
 		return;
 	}
 
 	// Data not duplicate, crc ok
 	// we have a data frame.
 	// signal we have it, update expecting, send to input buffer.
-	SetEvent(hDataRecieved);
+	SetEvent(hDataReceived);
 	
 	if (expected == DC1)
 		expected = DC2;
@@ -183,7 +183,7 @@ VOID FillDataFrame()
 --
 -- NOTES:
 -- Uses ReadIn to attempt to read the control portion of a frame into the buffer
--- Depending on the control character recieved, it will either call FillDataFrame
+-- Depending on the control character received, it will either call FillDataFrame
 -- or it will signal the corresponding control event.
 ----------------------------------------------------------------------------------------------------------------------*/
 VOID ReadCtrl()

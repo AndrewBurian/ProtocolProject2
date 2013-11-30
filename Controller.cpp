@@ -18,64 +18,167 @@
 --
 ----------------------------------------------------------------------------------------------------------------------*/
 #include "BCP.h"
+// TxProc/RxProc Return value if the program ends while sending or receiving
+#define RET_END_PROGRAM			-1
 
-/*
-* ProtocolDriver
-* --------------
-* Wait for either ENQ Rx'd or Output Available event
-* If ENQ Rx'd
-*		Tx ACK1
-*		Reset ENQ event
-*		Wait for Data to be Rx'd
-*		If Rx EOT or connection timed out
-*			Return to Idle
-*		Else If Rx Data
-*			If Data has valid CRC
-*				Tx ACK2
-*				Return to Wait for Data to be Rx'd
-*			Else
-*				Do nothing (force retransmission)
-* Else if Output Available
-*		Tx ENQ
-*		Wait for ACK1
-*		If Rx ACK1
-*			While there's data to send, the sending limit isn't reached, and retransmit hasn't failed
-*				Create Packet
-*				Tx Packet
-*				If response times out
-*					While Retransmission Attempts <= 5
-*						Attempt to Retransmit Packet
-*					If more than 5 Retransmission Attempts
-*						Retransmit failed; exit loop
-*			If Retransmit Failed
-*				Return to Idle
-*			Else
-*				Tx EOT
-*		Else
-*			Return to Idle
-*/
+// TxProc
+// return values
+#define TX_RET_SUCCESS				0
+#define TX_RET_NO_ENQ				1
+#define TX_RET_EXCEEDED_RETRIES		2
+// other stuff
+#define MAX_RETRIES	5
+#define TIMEOUT		5000 // will change
+
+// RxProc
+// return vales
+#define RX_RET_SUCCESS			0
+#define RX_RET_DATA_TIMEOUT		1
+
+static int TxProc();
+static int RxProc();
+static void MessageError(const TCHAR* message);
+
 DWORD WINAPI ProtocolControlThread(LPVOID params)
 {
-	HANDLE hEvent[2] = { OpenEvent(SYNCHRONIZE, FALSE, EVENT_ENQ),
-		OpenEvent(SYNCHRONIZE, FALSE, 0) }; // change to Output Available event
-	int signaled = -1;
-	signaled = WaitForMultipleObjects(2, hEvent, FALSE, INFINITE);
+	int	   signaled		= -1;
+	HANDLE hEvents[3]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_ENQ),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_OUTPUT_AVAILABLE),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM) };
 
-	if (signaled - WAIT_OBJECT_0 == 0) // ENQ received
+	while ((signaled = WaitForMultipleObjects(3, hEvents, FALSE, INFINITE)) != WAIT_OBJECT_0 + 2)
 	{
+		int retVal;
 
-		//WaitForMultipleObjects();
-		SendACK();
+		if (signaled == WAIT_OBJECT_0) // ENQ received
+		{
+			MessageBox(NULL, TEXT("ENQ received"), TEXT("Message"), MB_OK);
+			retVal = RxProc();
 
-	}
-	else if (signaled - WAIT_OBJECT_0 == 1) // Output availble
-	{
+			if (retVal == RET_END_PROGRAM)
+				break;
+			else if (retVal == RX_RET_DATA_TIMEOUT)
+			{
+				// Do something with packet statistics
+			}
+		}
+		else if (signaled - WAIT_OBJECT_0 + 1) // Output availble
+		{
+			MessageBox(NULL, TEXT("Output Available"), TEXT("Message"), MB_OK);
+			retVal = TxProc();
 
+			if (retVal == RET_END_PROGRAM)
+				break;
+			else if (retVal == TX_RET_EXCEEDED_RETRIES)
+			{
+				MessageBox(NULL, TEXT("Exceeded retransmission attempts."), TEXT("Exceeded Retries"), MB_OK);
+				//Do something with packet statistics
+			}
+		}
+		else if (signaled == WAIT_FAILED)
+		{
+			MessageError(TEXT("Waiting for ENQ or Output Available in ProtocolControlThread failed"));
+			SetEvent(hEvents[2]);
+			return 0;
+		}
 	}
-	else if (signaled == WAIT_FAILED)
-	{
-		// Handle the error gracefully (if possible) and get the hell out of 
-		// the program; this should never happen
-	}
+	SendMessage((HWND)params, WM_DESTROY, 0, 0);
 	return 0;
+}
+
+int TxProc()
+{
+	BOOL	more_data	= TRUE;
+	int		signaled	= -1;
+	HANDLE	hEvents[]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_ACK),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_NAK) };
+
+	if (!SendENQ())
+		return TX_RET_NO_ENQ;
+
+	while (more_data)
+	{
+		signaled = WaitForMultipleObjects(3, hEvents, FALSE, TIMEOUT); // possible issue: program ends after timeout
+		switch (signaled)
+		{
+		case WAIT_OBJECT_0:		// End of program
+			return RET_END_PROGRAM;
+		case WAIT_OBJECT_0 + 1: // ACK Received
+			MessageBox(NULL, TEXT("SendNext() in TxProc"), TEXT("SendNext()"), MB_OK);
+			SendNext();
+			break;
+		case WAIT_OBJECT_0 + 2:
+		case WAIT_TIMEOUT:		// NAK or timed out; resend the packet max of 5 times
+		{
+			MessageBox(NULL, TEXT("Resend() in TxProc"), TEXT("Resend()"), MB_OK);
+			size_t i;
+			for (i = 0; i < MAX_RETRIES && !Resend(); ++i);
+			
+			if (i == 5)
+				return TX_RET_EXCEEDED_RETRIES;
+			break;
+		}
+
+		case WAIT_FAILED: // something's clearly gone horribly wrong; display a message and exit
+			MessageError(TEXT("Waiting for an acknowledgement in SendProc failed"));
+			SetEvent(hEvents[0]); // Set the End of Program event to allow everyone else to clean up
+			return RET_END_PROGRAM;
+		}
+	}
+
+	// if we've gotten out of the loop, then there's no more data to send
+	SendEOT();
+	return TX_RET_SUCCESS;
+}
+
+int RxProc()
+{
+	int	   signaled		= -1;
+	HANDLE hEvents[4]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_DATA_RECEIVED),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_BAD_DATA_RECEIVED),
+							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_EOT)};
+	SendACK(); // Acknowledge the ENQ
+
+	while (TRUE)
+	{
+		signaled = WaitForMultipleObjects(4, hEvents, FALSE, TIMEOUT);
+		switch (signaled)
+		{
+		case WAIT_OBJECT_0:				// End of program
+			return RET_END_PROGRAM;
+		case WAIT_OBJECT_0 + 1:			// Good data received
+			MessageBox(NULL, TEXT("SendACK() in RxProc"), TEXT("SendACK()"), MB_OK);
+			SendACK();
+			break;
+		case WAIT_OBJECT_0 + 2:			// Bad data received; do nothing
+			MessageBox(NULL, TEXT("Bad data received in RxProc"), TEXT("Bad data"), MB_OK);
+			break;
+		case WAIT_OBJECT_0 + 3:			// EOT, so return RX_RET_SUCCESS
+			MessageBox(NULL, TEXT("Received EOT in RxProc"), TEXT("Rx EOT"), MB_OK);
+			return RX_RET_SUCCESS;
+		case WAIT_TIMEOUT:
+			MessageBox(NULL, TEXT("Data timed out in RxProc"), TEXT("Timeout"), MB_OK);
+			return RX_RET_DATA_TIMEOUT;
+		case WAIT_FAILED:				// Something went wrong; end the program
+			MessageError(TEXT("Waiting for data, EOT or end of program in RxProc failed"));
+			SetEvent(hEvents[0]);
+			return RET_END_PROGRAM;
+		}
+	}
+	MessageError(TEXT("RxProc failed due to an unforeseen error")); // How have we even gotten out here? This isn't good
+	SetEvent(hEvents[0]);											// There's probably been some catastrophic failure, so end the program
+	return RET_END_PROGRAM;				
+}
+
+
+// Displays a formatted error message containing the error code from GetLastError.
+void MessageError(const TCHAR* message)
+{
+
+	TCHAR err_msg[256];
+	const TCHAR *err = TEXT("Fatal Error: %s (error code : %d). Exiting the program.");
+	_sntprintf_s(err_msg, 256, err, message, GetLastError());
+	MessageBox(NULL, err_msg, TEXT("Fatal Error"), MB_ICONERROR);
 }

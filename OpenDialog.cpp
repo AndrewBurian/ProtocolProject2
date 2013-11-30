@@ -1,3 +1,4 @@
+#include "BCP.h"
 #include <commdlg.h> //might need this
 static OPENFILENAME ofn ; //do need this
 

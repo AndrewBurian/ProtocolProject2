@@ -72,6 +72,7 @@
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="MainProc.cpp" />
+    <ClCompile Include="OpenDialog.cpp" />
     <ClCompile Include="Output.cpp" />
     <ClCompile Include="UIdisplay.cpp" />
     <ClCompile Include="WindowMain.cpp" />

@@ -44,7 +44,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		ReleaseDC(hwnd, hdc);
 		break;
 	case WM_COMMAND:
-		switch (LOWORD(lParam))
+		switch (HIWORD(wParam))
 		{
 		case BTN_CONNECT:
 			// connect to comm port
@@ -78,15 +78,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			else
 			{
 				//mgsbox, not connected.
+				MessageBox(hwnd, TEXT("Error"), TEXT("Not connected. Please select connect first."), MB_ICONERROR | MB_OK);
 			}
 			break;
 		}
+		break;
 	case WM_DESTROY:		// message to terminate the program
 		if (!quMasterOutputQueue.empty())
 		{
-			//msgbox, File sending in progress, are you sure?
-			int msgresult = 0;
-			if (msgresult != 1)
+			int msgresult = MessageBox(hwnd, TEXT("Are you sure?"), 
+				TEXT("Files are currently being sent. Are you sure you wish to exit?"), 
+				MB_OKCANCEL | MB_ICONEXCLAMATION);
+			if (msgresult != IDOK)
 				break;
 		}
 		bMasterProgramDone = TRUE;

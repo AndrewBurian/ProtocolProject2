@@ -93,3 +93,8 @@ VOID GUI_Text(LPCSTR text);
 VOID GUI_Sent();
 VOID GUI_Received();
 VOID GUI_Lost();
+
+// Choose File popup
+// ----------------------------------------------------------------------------
+void FileInitialize(HWND hwnd, OPENFILENAME ofn);
+BOOL FileOpenDlg(HWND hwnd, PTSTR pstrFileName, OPENFILENAME ofn);

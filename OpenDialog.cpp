@@ -3,7 +3,7 @@
 static OPENFILENAME ofn ; //do need this
 
 
-void FileInitialize (HWND hwnd)
+void FileInitialize (HWND hwnd, OPENFILENAME ofn)
 {
 	static TCHAR szFilter[] = TEXT ("Text Files (*.TXT)\0*.txt\0")  
 		TEXT ("ASCII Files (*.ASC)\0*.asc\0")  
@@ -31,11 +31,10 @@ void FileInitialize (HWND hwnd)
 	ofn.lpTemplateName    = NULL ;
 }
 
-BOOL FileOpenDlg (HWND hwnd, PTSTR pstrFileName/*, PTSTR pstrTitleName*/)
+BOOL FileOpenDlg (HWND hwnd, PTSTR pstrFileName, OPENFILENAME ofn)
 {
 	ofn.hwndOwner         = hwnd ;
 	ofn.lpstrFile         = pstrFileName ;
-	//ofn.lpstrFileTitle    = pstrTitleName ;
 	ofn.Flags             = OFN_HIDEREADONLY | OFN_CREATEPROMPT ;
 
 	return GetOpenFileName (&ofn) ;

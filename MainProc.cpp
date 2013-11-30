@@ -19,6 +19,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	BOOL bConnected = FALSE;
 
 	COMMCONFIG cc;
+	OPENFILENAME ofn = { 0 };
 
 	SHARED_DATA_POINTERS MasterDat;
 
@@ -41,6 +42,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		break;
 
 	case WM_PAINT:
+		BeginPaint(hwnd, NULL);
 		hdc = GetDC(hwnd);
 		SelectObject(hdc, GetStockBrush(NULL_BRUSH));
 		Rectangle(hdc, 400, 300, 750, 550);	// left, top, right, bottom
@@ -48,6 +50,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		TextOut(hdc, 410, 350, TEXT("Sent:"), 5);
 		TextOut(hdc, 410, 380, TEXT("Received:"), 9);
 		TextOut(hdc, 410, 410, TEXT("Lost:"), 5);
+		EndPaint(hwnd, NULL);
 		
 		ReleaseDC(hwnd, hdc);
 		break;
@@ -65,7 +68,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			
 			if (hMasterCommPort == INVALID_HANDLE_VALUE)
 			{
-				MessageBox(hwnd, TEXT("Error"), TEXT("Comm port failed"), MB_ICONERROR | MB_OK);
+				Sleep(0);
+				MessageBox(hwnd, TEXT("Comm port failed"), TEXT("Error"), MB_ICONERROR | MB_OK);
 				break;
 			}
 			
@@ -91,10 +95,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		case BTN_SEND:
 			if (bConnected)
 			{
-				// get file name
-				// start file bufferer thread
-
-				// get file name
+				FileInitialize(hwnd, ofn);
+				MasterDat.p_outFileName = "";
+				FileOpenDlg(hwnd, (PTSTR)MasterDat.p_outFileName, ofn);
 
 				threads[4] = CreateThread(NULL, NULL, FileBufferThread, (LPVOID)&MasterDat, NULL, NULL);
 			}

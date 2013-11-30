@@ -17,7 +17,9 @@
 -- NOTES: Functions in this file handle events from the other parts of the program.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
+#include <tchar.h>
 #include "BCP.h"
+
 // TxProc/RxProc Return value if the program ends while sending or receiving
 #define RET_END_PROGRAM			-1
 
@@ -28,7 +30,6 @@
 #define TX_RET_EXCEEDED_RETRIES		2
 // other stuff
 #define MAX_RETRIES	5
-#define TIMEOUT		5000 // will change
 
 // RxProc
 // return vales
@@ -179,6 +180,6 @@ void MessageError(const TCHAR* message)
 
 	TCHAR err_msg[256];
 	const TCHAR *err = TEXT("Fatal Error: %s (error code : %d). Exiting the program.");
-	//_sntprintf_s(err_msg, 256, err, message, GetLastError());
+	_sntprintf_s(err_msg, 256, err, message, GetLastError());
 	MessageBox(NULL, err_msg, TEXT("Fatal Error"), MB_ICONERROR);
 }

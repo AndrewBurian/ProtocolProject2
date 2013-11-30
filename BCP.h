@@ -96,5 +96,5 @@ VOID GUI_Lost();
 
 // Choose File popup
 // ----------------------------------------------------------------------------
-void FileInitialize(HWND hwnd, OPENFILENAME ofn);
-BOOL FileOpenDlg(HWND hwnd, PTSTR pstrFileName, OPENFILENAME ofn);
+void FileInitialize(HWND hwnd, OPENFILENAME *ofn);
+BOOL FileOpenDlg(HWND hwnd, PTSTR pstrFileName, OPENFILENAME *ofn);

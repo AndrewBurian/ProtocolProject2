@@ -26,7 +26,7 @@
 DWORD WINAPI FileBufferThread(LPVOID threadParams)
 {
 	LPCSTR fileName = ((SHARED_DATA_POINTERS*)threadParams)->p_outFileName;
-	queue<BYTE> outQueue=*((SHARED_DATA_POINTERS*)threadParams)-> p_quOutputQueue;
+	queue<BYTE> *outQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quOutputQueue;
 	BYTE   bySwap ;
 	DWORD  dwBytesRead ;
 	HANDLE hFile ;
@@ -45,7 +45,7 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 	pBuffer[iFileLength] = '\0' ;
 	pBuffer[iFileLength + 1] = '\0' ;
 	for (int i=0;i<iFileLength;++i){
-		outQueue.push(pBuffer[i]);
+		outQueue->push(pBuffer[i]);
 	}	
 	free (pBuffer) ;
 
@@ -75,15 +75,15 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 DWORD WINAPI FileWriterThread(LPVOID threadParams)
 {
 	char* buffer="";
-	queue<BYTE> inQueue=*((SHARED_DATA_POINTERS*)threadParams)-> p_quInputQueue;
+	queue<BYTE> *inQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quInputQueue;
 	BOOL *progDone = ((SHARED_DATA_POINTERS*)threadParams)-> p_bProgramDone;
 
 	while(!progDone){
-		while(!(inQueue.empty())){
+		while(!(inQueue->empty())){
  
-			strcat_s(buffer,1,(char*)inQueue.front());
+			strcat_s(buffer,1,(char*)inQueue->front());
 			//if only every other character is printed, remove the pop
-			inQueue.pop();
+			inQueue->pop();
 		}
 		//send buffer to display function
 		GUI_Text(buffer);

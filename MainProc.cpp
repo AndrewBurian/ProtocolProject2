@@ -68,7 +68,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			
 			if (hMasterCommPort == INVALID_HANDLE_VALUE)
 			{
-				Sleep(0);
 				MessageBox(hwnd, TEXT("Comm port failed"), TEXT("Error"), MB_ICONERROR | MB_OK);
 				break;
 			}
@@ -80,27 +79,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			if (!CommConfigDialog(TEXT("COM1"), hwnd, &cc))
 				break;
 			
-			bConnected = TRUE;
+			//bConnected = TRUE;
 
 			MasterDat.p_hCommPort = &hMasterCommPort;
 			MasterDat.p_bProgramDone = &bMasterProgramDone;
 			MasterDat.p_quInputQueue = &quMasterInputQueue;
 			MasterDat.p_quOutputQueue = &quMasterOutputQueue;
 
-			threads[0] = CreateThread(NULL, NULL, ProtocolControlThread, (LPVOID)&MasterDat, NULL, NULL);
+		//	threads[0] = CreateThread(NULL, NULL, ProtocolControlThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[1] = CreateThread(NULL, NULL, SerialReadThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[2] = CreateThread(NULL, NULL, FileWriterThread, (LPVOID)&MasterDat, NULL, NULL);
 			break;
 
 		case BTN_SEND:
-			if (bConnected)
+			if (hMasterCommPort != INVALID_HANDLE_VALUE && hMasterCommPort != NULL)
 			{
-				FileInitialize(hwnd, ofn);
+				FileInitialize(hwnd, &ofn);
 				MasterDat.p_outFileName = "";
-				FileOpenDlg(hwnd, (PTSTR)MasterDat.p_outFileName, ofn);
+				FileOpenDlg(hwnd, (PTSTR)MasterDat.p_outFileName, &ofn);
 
-				threads[4] = CreateThread(NULL, NULL, FileBufferThread, (LPVOID)&MasterDat, NULL, NULL);
+				threads[3] = CreateThread(NULL, NULL, FileBufferThread, (LPVOID)&MasterDat, NULL, NULL);
 			}
+			
 			else
 			{
 				MessageBox(hwnd, TEXT("Not connected. Please select connect first."), TEXT("Error"), MB_OK | MB_ICONERROR);

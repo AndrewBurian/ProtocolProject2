@@ -58,11 +58,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		switch (wParam)
 		{
 		case BTN_CONNECT:
-			// connect to comm port
-			// start threads
-			// here we go...
-			
+			// Ensure handle is closed already
 			CloseHandle(hMasterCommPort);
+			
+			// open
 			hMasterCommPort = CreateFile(TEXT("COM1"), GENERIC_READ | GENERIC_WRITE, 0, 
 				NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 			
@@ -77,9 +76,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			
 			GetCommConfig(hMasterCommPort, &cc, &cc.dwSize);
 			if (!CommConfigDialog(TEXT("COM1"), hwnd, &cc))
+			{
+				MessageBox(hwnd, TEXT("You did not finish connecting"), TEXT("Alert"), MB_ICONWARNING | MB_OK);
 				break;
-			
-			//bConnected = TRUE;
+			}
+
+			bConnected = TRUE;
 
 			MasterDat.p_hCommPort = &hMasterCommPort;
 			MasterDat.p_bProgramDone = &bMasterProgramDone;
@@ -92,7 +94,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 
 		case BTN_SEND:
-			if (hMasterCommPort != INVALID_HANDLE_VALUE && hMasterCommPort != NULL)
+			if (bConnected)
 			{
 				FileInitialize(hwnd, &ofn);
 				MasterDat.p_outFileName = "";
@@ -108,6 +110,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			break;
 		}
 		break;
+
 	case WM_DESTROY:
 		if (!quMasterOutputQueue.empty())
 		{

@@ -179,6 +179,6 @@ void MessageError(const TCHAR* message)
 
 	TCHAR err_msg[256];
 	const TCHAR *err = TEXT("Fatal Error: %s (error code : %d). Exiting the program.");
-	_sntprintf_s(err_msg, 256, err, message, GetLastError());
+	//_sntprintf_s(err_msg, 256, err, message, GetLastError());
 	MessageBox(NULL, err_msg, TEXT("Fatal Error"), MB_ICONERROR);
 }

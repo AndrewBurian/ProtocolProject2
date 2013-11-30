@@ -18,14 +18,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	HANDLE hMasterProgramDoneEvent = CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
 	BOOL bConnected = FALSE;
 
+	COMMCONFIG cc;
+
 	SHARED_DATA_POINTERS MasterDat;
 
 	switch (Message)
 	{
 	case WM_CREATE:
-		edit = CreateWindow(TEXT("Edit"), NULL, WS_CHILD | ES_MULTILINE, 10, 10, 350, 500, hwnd, NULL, NULL, NULL);
-		btn1 = CreateWindow(TEXT("Button"), TEXT("Connect"), WS_CHILD, 400, 150, 80, 20, hwnd, NULL, (HINSTANCE)BTN_CONNECT, NULL);
-		btn2 = CreateWindow(TEXT("Button"), TEXT("Send File"), WS_CHILD, 400, 200, 80, 20, hwnd, NULL, (HINSTANCE)BTN_SEND, NULL);
+		edit = CreateWindow(TEXT("Edit"), NULL, WS_CHILD | ES_MULTILINE, 
+			10, 10, 350, 500, hwnd, NULL, NULL, NULL);
+
+		btn1 = CreateWindow(TEXT("Button"), TEXT("Connect"), WS_CHILD | BS_PUSHBUTTON, 
+			400, 150, 80, 20, hwnd, (HMENU)BTN_CONNECT, NULL, NULL);
+
+		btn2 = CreateWindow(TEXT("Button"), TEXT("Send File"), WS_CHILD | BS_PUSHBUTTON, 
+			400, 200, 80, 20, hwnd, (HMENU)BTN_SEND, NULL, NULL);
+
 		ShowWindow(edit, SW_SHOW);
 		ShowWindow(btn1, SW_SHOW);
 		ShowWindow(btn2, SW_SHOW);
@@ -44,18 +52,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		ReleaseDC(hwnd, hdc);
 		break;
 	case WM_COMMAND:
-		switch (HIWORD(wParam))
+		switch (wParam)
 		{
 		case BTN_CONNECT:
 			// connect to comm port
 			// start threads
 			// here we go...
-
-			// comm port logic
-
-			// on seccess
+			
+			CloseHandle(hMasterCommPort);
+			hMasterCommPort = CreateFile(TEXT("COM1"), GENERIC_READ | GENERIC_WRITE, 0, 
+				NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+			
+			if (hMasterCommPort == INVALID_HANDLE_VALUE)
+			{
+				MessageBox(hwnd, TEXT("Error"), TEXT("Comm port failed"), MB_ICONERROR | MB_OK);
+				break;
+			}
+			
+			cc.dwSize = sizeof(COMMCONFIG);
+			cc.wVersion = 0x100;
+			
+			GetCommConfig(hMasterCommPort, &cc, &cc.dwSize);
+			if (!CommConfigDialog(TEXT("COM1"), hwnd, &cc))
+				break;
+			
 			bConnected = TRUE;
 
+			MasterDat.p_hCommPort = &hMasterCommPort;
 			MasterDat.p_bProgramDone = &bMasterProgramDone;
 			MasterDat.p_quInputQueue = &quMasterInputQueue;
 			MasterDat.p_quOutputQueue = &quMasterOutputQueue;
@@ -77,17 +100,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			}
 			else
 			{
-				//mgsbox, not connected.
-				MessageBox(hwnd, TEXT("Error"), TEXT("Not connected. Please select connect first."), MB_ICONERROR | MB_OK);
+				MessageBox(hwnd, TEXT("Not connected. Please select connect first."), TEXT("Error"), MB_OK | MB_ICONERROR);
 			}
 			break;
 		}
 		break;
-	case WM_DESTROY:		// message to terminate the program
+	case WM_DESTROY:
 		if (!quMasterOutputQueue.empty())
 		{
-			int msgresult = MessageBox(hwnd, TEXT("Are you sure?"), 
-				TEXT("Files are currently being sent. Are you sure you wish to exit?"), 
+			int msgresult = MessageBox(hwnd, TEXT("Files are currently being sent. Are you sure you wish to exit?"), 
+				TEXT("Are you sure?"), 
 				MB_OKCANCEL | MB_ICONEXCLAMATION);
 			if (msgresult != IDOK)
 				break;
@@ -95,7 +117,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 		bMasterProgramDone = TRUE;
 		SetEvent(hMasterProgramDoneEvent);
 
-		WaitForMultipleObjects(4, threads, TRUE, 3000);
+		WaitForMultipleObjects(4, threads, TRUE, INFINITE);
 		PostQuitMessage(0);
 		break;
 

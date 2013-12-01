@@ -114,7 +114,13 @@ int TxProc()
 		{
 			MessageBox(NULL, TEXT("Resend() in TxProc"), TEXT("Resend()"), MB_OK);
 			size_t i;
-			for (i = 0; i < MAX_RETRIES && !Resend(); ++i);
+			for (i = 0; i < MAX_RETRIES; ++i)
+			{
+				Resend();
+				signaled = WaitForSingleObject(hEvents[1], TIMEOUT); // Wait for an ACK
+				if (signaled == WAIT_OBJECT_0)
+					break;
+			}
 			
 			if (i == 5)
 				return TX_RET_EXCEEDED_RETRIES;

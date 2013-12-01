@@ -34,7 +34,7 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 	PBYTE  pBuffer;
 
 	if (INVALID_HANDLE_VALUE == 
-		(hFile = CreateFile ((LPCWSTR)fileName, GENERIC_READ, FILE_SHARE_READ,
+		(hFile = CreateFile (fileName, GENERIC_READ, FILE_SHARE_READ,
 		NULL, OPEN_EXISTING, 0, NULL)))
 		return FALSE ;
 

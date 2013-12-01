@@ -70,7 +70,7 @@ int ReadIn(byte* frame, unsigned len, DWORD wait)
 {
 	OVERLAPPED ovrReadPort = { 0 };
 	ovrReadPort.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-
+	
 	// Start Async Read
 
 	ReadFile(*hInputCommPort, frame, len, NULL, &ovrReadPort);
@@ -256,7 +256,7 @@ DWORD WINAPI SerialReadThread(LPVOID threadParams)
 	quInputQueue = dat->p_quInputQueue;
 	hInputCommPort = dat->p_hCommPort;
 
-	while (!bProgramDone)
+	while (!(*bProgramDone))
 	{
 		switch (ReadIn(&input[0], 1, INFINITE))
 		{

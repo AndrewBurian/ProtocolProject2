@@ -78,7 +78,7 @@ BOOL WriteOut(byte* frame, unsigned len)
 	// how you would get here is beyond me, but probably failed horribly
 	return FALSE;
 
-	*/
+	//*/
 }
 
 /*------------------------------------------------------------------------------------------------------------------

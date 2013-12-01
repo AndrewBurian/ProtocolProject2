@@ -93,6 +93,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			MasterDat.p_quInputQueue = &quMasterInputQueue;
 			MasterDat.p_quOutputQueue = &quMasterOutputQueue;
 
+			SetupOutput(&MasterDat);
+
 			threads[0] = CreateThread(NULL, NULL, ProtocolControlThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[1] = CreateThread(NULL, NULL, SerialReadThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[2] = CreateThread(NULL, NULL, FileWriterThread, (LPVOID)&MasterDat, NULL, NULL);

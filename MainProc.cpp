@@ -29,8 +29,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	switch (Message)
 	{
 	case WM_CREATE:
-		edit = CreateWindow(TEXT("Edit"), NULL, WS_CHILD | ES_MULTILINE, 
-			10, 10, 350, 500, hwnd, NULL, NULL, NULL);
+		edit = CreateWindowEx(
+		 WS_EX_CLIENTEDGE, TEXT("Edit"), NULL,
+		 WS_CHILD | WS_VISIBLE | WS_BORDER|ES_MULTILINE|ES_AUTOHSCROLL|WS_VSCROLL|ES_READONLY,
+		 20, 20, 350,530, hwnd, NULL, NULL, NULL); 
 
 		btn1 = CreateWindow(TEXT("Button"), TEXT("Connect"), WS_CHILD | BS_PUSHBUTTON, 
 			400, 150, 80, 20, hwnd, (HMENU)BTN_CONNECT, NULL, NULL);

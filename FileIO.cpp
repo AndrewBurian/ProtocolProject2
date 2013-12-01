@@ -3,6 +3,9 @@
 //#include <deque>
 //#include <list>
 //#include <string>
+
+HANDLE hOutputReady = CreateEvent(NULL, FALSE, FALSE, EVENT_OUTPUT_AVAILABLE);
+
 /*------------------------------------------------------------------------------------------------------------------
 -- FUNCTION: FileBufferThread
 --
@@ -46,6 +49,7 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 	pBuffer[iFileLength + 1] = '\0' ;
 	for (int i=0;i<iFileLength;++i){
 		outQueue->push(pBuffer[i]);
+		SetEvent(hOutputReady);
 	}	
 	free (pBuffer) ;
 
@@ -74,22 +78,45 @@ DWORD WINAPI FileBufferThread(LPVOID threadParams)
 ----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI FileWriterThread(LPVOID threadParams)
 {
-	char* buffer="";
-	queue<BYTE> *inQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quInputQueue;
-	BOOL *progDone = ((SHARED_DATA_POINTERS*)threadParams)-> p_bProgramDone;
+	char* buffer="This is a test!";
+	//char* buffer[1020];
 
-	while(!(*progDone))
+	queue<BYTE> *inQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quInputQueue;
+	BOOL progDone = *((SHARED_DATA_POINTERS*)threadParams)-> p_bProgramDone;
+	inQueue->push('T');
+	inQueue->push('h');
+	inQueue->push('i');
+	inQueue->push('s');
+	inQueue->push(' ');
+	inQueue->push('i');
+	inQueue->push('s');
+	inQueue->push(' ');
+	inQueue->push('a');
+	inQueue->push(' ');
+	inQueue->push('t');
+	inQueue->push('e');
+	inQueue->push('s');
+	inQueue->push('t');
+	while(!(progDone))
 	{
 		while(!(inQueue->empty()))
 		{
- 
-			strcat_s(buffer,1,(char*)inQueue->front());
+
+			//strcat_s(buffer,1,(char*)inQueue->front());
+			//sprintf_s(buffer,1, %s%c, (CHAR*)inQueue->front());
 			//if only every other character is printed, remove the pop
 			inQueue->pop();
 		}
+		if (sizeof(buffer)>1){
+		//convert to wide char string
+		size_t newsize = strlen(buffer) + 1;
+		wchar_t * wcstring = new wchar_t[newsize];
+		size_t convertedChars = 0;
+		mbstowcs_s(&convertedChars, wcstring, newsize, buffer, _TRUNCATE);
 		//send buffer to display function
-		GUI_Text(buffer);
-		buffer="";
+
+		GUI_Text(wcstring);
+		buffer="";}
 	}
 	return 0;
 }

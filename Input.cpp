@@ -72,7 +72,7 @@ int ReadIn(byte* frame, unsigned len, DWORD wait)
 
 	// Start Async Read
 
-	ReadFile(hInputCommPort, frame, len, NULL, &ovrReadPort);
+	ReadFile(*hInputCommPort, frame, len, NULL, &ovrReadPort);
 
 	// wait for event imbedded in overlapped struct
 	HANDLE events[] = { ovrReadPort.hEvent, hEndProgram };

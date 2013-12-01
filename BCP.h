@@ -89,7 +89,7 @@ struct SHARED_DATA_POINTERS{
 // ----------------------------------------------------------------------------
 
 VOID SetupGUI(HWND main, HWND edit);
-VOID GUI_Text(LPCSTR text);
+VOID GUI_Text(TCHAR* text);
 VOID GUI_Sent();
 VOID GUI_Received();
 VOID GUI_Lost();

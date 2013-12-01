@@ -29,11 +29,11 @@ VOID SetupGUI(HWND main, HWND edit)
 -- This function is used to write data to the edit box.  It appends new datato the currently existing text.
 --
 ----------------------------------------------------------------------------------------------------------------------*/
-VOID GUI_Text(LPCSTR text)
+VOID GUI_Text(TCHAR* text)
 {
 	//This might be what we have to use.  We'd have to create a buffer to 
 	//hold all text and then append text to buffer and then redisplay it
-	//SetWindowText(hwndTextBox,(LPCWSTR) text);
+	SetWindowText(hwndTextBox, text);
 	/*
 int len = GetWindowTextLength(hwndTextBox);
 std::vector<TCHAR> temp(len + sizeof(text) + 1);

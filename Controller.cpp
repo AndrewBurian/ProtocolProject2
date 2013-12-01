@@ -95,8 +95,7 @@ int TxProc()
 						  CreateEvent(NULL, FALSE, FALSE, EVENT_ACK),
 						  CreateEvent(NULL, FALSE, FALSE, EVENT_NAK) };
 
-	if (!SendENQ())
-		return TX_RET_NO_ENQ;
+	SendENQ();
 
 	while (more_data)
 	{

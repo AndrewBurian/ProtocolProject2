@@ -116,7 +116,9 @@ DWORD WINAPI FileWriterThread(LPVOID threadParams)
 		//send buffer to display function
 
 		GUI_Text(wcstring);
-		buffer="";}
+		buffer="";
+		delete[] wcstring;
+		}
 	}
 	return 0;
 }

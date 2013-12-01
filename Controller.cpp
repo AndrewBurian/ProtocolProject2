@@ -43,9 +43,9 @@ static void MessageError(const TCHAR* message);
 DWORD WINAPI ProtocolControlThread(LPVOID params)
 {
 	int	   signaled		= -1;
-	HANDLE hEvents[3]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_ENQ),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_OUTPUT_AVAILABLE),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM) };
+	HANDLE hEvents[3]	= { CreateEvent(NULL, FALSE, FALSE, EVENT_ENQ),
+							CreateEvent(NULL, FALSE, FALSE, EVENT_OUTPUT_AVAILABLE),
+							CreateEvent(NULL, FALSE, FALSE, EVENT_END_PROGRAM) };
 
 	while ((signaled = WaitForMultipleObjects(3, hEvents, FALSE, INFINITE)) != WAIT_OBJECT_0 + 2)
 	{

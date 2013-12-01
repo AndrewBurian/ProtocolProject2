@@ -78,8 +78,10 @@ DWORD WINAPI FileWriterThread(LPVOID threadParams)
 	queue<BYTE> *inQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quInputQueue;
 	BOOL *progDone = ((SHARED_DATA_POINTERS*)threadParams)-> p_bProgramDone;
 
-	while(!progDone){
-		while(!(inQueue->empty())){
+	while(!(*progDone))
+	{
+		while(!(inQueue->empty()))
+		{
  
 			strcat_s(buffer,1,(char*)inQueue->front());
 			//if only every other character is printed, remove the pop

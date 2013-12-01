@@ -40,16 +40,6 @@ using namespace std;
 #define DC1 0x11
 #define DC2 0x12
 
-// Global Comm Port Object and utils
-// ----------------------------------------------------------------------------
-struct SHARED_DATA_POINTERS{
-	HANDLE *p_hCommPort;
-	queue<BYTE> *p_quOutputQueue;
-	queue<BYTE> *p_quInputQueue;
-	BOOL *p_bProgramDone;
-	TCHAR * p_outFileName;
-};
-
 
 // Function Declarations
 // ----------------------------------------------------------------------------
@@ -67,7 +57,6 @@ BOOL SendACK();
 BOOL SendNAK();
 BOOL SendEOT();
 BOOL SendENQ();
-VOID SetupOutput(SHARED_DATA_POINTERS* dat);
 
 //CRC
 BOOL MakeCRC(byte* input, byte* crc);
@@ -86,12 +75,21 @@ BOOL CheckCRC(byte* input, byte* crc);
 #define EVENT_OUTPUT_AVAILABLE TEXT("BCP_OUTPUT_AVAILABLE")
 #define EVENT_INPUT_AVAILABLE TEXT("BCP_INPUT_AVAILBLE")
 
+// Global Comm Port Object and utils
+// ----------------------------------------------------------------------------
+struct SHARED_DATA_POINTERS{
+	HANDLE *p_hCommPort;
+	queue<BYTE> *p_quOutputQueue;
+	queue<BYTE> *p_quInputQueue;
+	BOOL *p_bProgramDone;
+	TCHAR * p_outFileName;
+};
 
 // GUI functionallity
 // ----------------------------------------------------------------------------
 
 VOID SetupGUI(HWND main, HWND edit);
-VOID GUI_Text(TCHAR* text);
+VOID GUI_Text(wchar_t * text);
 VOID GUI_Sent();
 VOID GUI_Received();
 VOID GUI_Lost();

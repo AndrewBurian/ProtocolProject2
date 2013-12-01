@@ -91,9 +91,9 @@ int TxProc()
 {
 	BOOL	more_data	= TRUE;
 	int		signaled	= -1;
-	HANDLE	hEvents[]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_ACK),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_NAK) };
+	HANDLE	hEvents[] = { CreateEvent(NULL, FALSE, FALSE, EVENT_END_PROGRAM),
+						  CreateEvent(NULL, FALSE, FALSE, EVENT_ACK),
+						  CreateEvent(NULL, FALSE, FALSE, EVENT_NAK) };
 
 	if (!SendENQ())
 		return TX_RET_NO_ENQ;
@@ -136,10 +136,11 @@ int TxProc()
 int RxProc()
 {
 	int	   signaled		= -1;
-	HANDLE hEvents[4]	= { OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_END_PROGRAM),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_DATA_RECEIVED),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_BAD_DATA_RECEIVED),
-							OpenEvent(EVENT_ALL_ACCESS, FALSE, EVENT_EOT)};
+	HANDLE hEvents[4] = { CreateEvent(NULL, FALSE, FALSE, EVENT_END_PROGRAM),
+						  CreateEvent(NULL, FALSE, FALSE, EVENT_DATA_RECEIVED),
+						  CreateEvent(NULL, FALSE, FALSE, EVENT_BAD_DATA_RECEIVED),
+						  CreateEvent(NULL, FALSE, FALSE, EVENT_EOT)};
+							
 	SendACK(); // Acknowledge the ENQ
 
 	while (TRUE)

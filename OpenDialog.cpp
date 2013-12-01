@@ -3,7 +3,7 @@
 //static OPENFILENAME ofn ; //do need this
 
 
-void FileInitialize (HWND hwnd, OPENFILENAME* ofn)
+void FileInitialize (HWND hwnd, OPENFILENAME *ofn)
 {
 	static TCHAR szFilter[] = TEXT ("Text Files (*.TXT)\0*.txt\0")  
 		TEXT ("ASCII Files (*.ASC)\0*.asc\0")  
@@ -29,13 +29,14 @@ void FileInitialize (HWND hwnd, OPENFILENAME* ofn)
 	ofn->lCustData         = 0L ;
 	ofn->lpfnHook          = NULL ;
 	ofn->lpTemplateName    = NULL ;
+	ofn->Flags             = OFN_HIDEREADONLY | OFN_CREATEPROMPT ;
 }
 
-BOOL FileOpenDlg (HWND hwnd, PTSTR pstrFileName, OPENFILENAME* ofn)
+BOOL FileOpenDlg (HWND hwnd, PTSTR pstrFileName, OPENFILENAME *ofn)
 {
 	ofn->hwndOwner         = hwnd ;
 	ofn->lpstrFile         = pstrFileName ;
-	ofn->Flags             = OFN_HIDEREADONLY | OFN_CREATEPROMPT ;
+	
 
 	return GetOpenFileName (ofn) ;
 }

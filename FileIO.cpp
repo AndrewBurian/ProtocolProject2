@@ -25,7 +25,7 @@
 ----------------------------------------------------------------------------------------------------------------------*/
 DWORD WINAPI FileBufferThread(LPVOID threadParams)
 {
-	LPCSTR fileName = ((SHARED_DATA_POINTERS*)threadParams)->p_outFileName;
+	TCHAR * fileName = ((SHARED_DATA_POINTERS*)threadParams)->p_outFileName;
 	queue<BYTE> *outQueue=((SHARED_DATA_POINTERS*)threadParams)-> p_quOutputQueue;
 	BYTE   bySwap ;
 	DWORD  dwBytesRead ;

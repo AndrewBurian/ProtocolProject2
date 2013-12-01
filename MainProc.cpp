@@ -3,25 +3,28 @@
 #define BTN_CONNECT 5001
 #define BTN_SEND	5002
 
+HDC hdc;
+HWND edit, btn1, btn2;
+BOOL bMasterProgramDone = FALSE;
+queue<BYTE> quMasterOutputQueue;
+queue<BYTE> quMasterInputQueue;
+HANDLE hMasterCommPort = NULL;
+LPCSTR szFileToSendNake = NULL;
+HANDLE threads[4] = { 0 };
+HANDLE hMasterProgramDoneEvent = CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
+BOOL bConnected = FALSE;
+TCHAR fileName[MAX_PATH];
+TCHAR titleName[MAX_PATH];
+
+OPENFILENAME ofn;
+
+COMMCONFIG cc;
+
+SHARED_DATA_POINTERS MasterDat;
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 	WPARAM wParam, LPARAM lParam)
 {
-	HDC hdc;
-	HWND edit, btn1, btn2;
-	BOOL bMasterProgramDone = FALSE;
-	queue<BYTE> quMasterOutputQueue;
-	queue<BYTE> quMasterInputQueue;
-	HANDLE hMasterCommPort = NULL;
-	LPCSTR szFileToSendNake = NULL;
-	HANDLE threads[4] = { 0 };
-	HANDLE hMasterProgramDoneEvent = CreateEvent(NULL, TRUE, FALSE, EVENT_END_PROGRAM);
-	BOOL bConnected = FALSE;
-
-	COMMCONFIG cc;
-	OPENFILENAME ofn = { 0 };
-
-	SHARED_DATA_POINTERS MasterDat;
 
 	switch (Message)
 	{
@@ -88,7 +91,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			MasterDat.p_quInputQueue = &quMasterInputQueue;
 			MasterDat.p_quOutputQueue = &quMasterOutputQueue;
 
-		//	threads[0] = CreateThread(NULL, NULL, ProtocolControlThread, (LPVOID)&MasterDat, NULL, NULL);
+			//threads[0] = CreateThread(NULL, NULL, ProtocolControlThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[1] = CreateThread(NULL, NULL, SerialReadThread, (LPVOID)&MasterDat, NULL, NULL);
 			threads[2] = CreateThread(NULL, NULL, FileWriterThread, (LPVOID)&MasterDat, NULL, NULL);
 			break;
@@ -97,8 +100,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT Message,
 			if (bConnected)
 			{
 				FileInitialize(hwnd, &ofn);
-				MasterDat.p_outFileName = "";
-				FileOpenDlg(hwnd, (PTSTR)MasterDat.p_outFileName, &ofn);
+				ofn.hwndOwner = hwnd;
+				ofn.lpstrFile = fileName;
+				ofn.lpstrFileTitle = titleName;
+				if(!GetOpenFileName(&ofn))
+				{
+					//error
+					break;
+				}
+
+				MasterDat.p_outFileName=fileName;
+				
 
 				threads[3] = CreateThread(NULL, NULL, FileBufferThread, (LPVOID)&MasterDat, NULL, NULL);
 			}

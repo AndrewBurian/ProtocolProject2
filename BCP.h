@@ -82,7 +82,7 @@ struct SHARED_DATA_POINTERS{
 	queue<BYTE> *p_quOutputQueue;
 	queue<BYTE> *p_quInputQueue;
 	BOOL *p_bProgramDone;
-	LPCSTR p_outFileName;
+	TCHAR * p_outFileName;
 };
 
 // GUI functionallity
@@ -96,5 +96,5 @@ VOID GUI_Lost();
 
 // Choose File popup
 // ----------------------------------------------------------------------------
-void FileInitialize(HWND hwnd, OPENFILENAME *ofn);
+void FileInitialize(HWND hwnd, OPENFILENAME* ofn);
 BOOL FileOpenDlg(HWND hwnd, PTSTR pstrFileName, OPENFILENAME *ofn);

@@ -55,7 +55,7 @@ BOOL WriteOut(byte* frame, unsigned len)
 {
 
 	// Start Sync write
-	return WriteFile(hOutputCommPort, frame, len, NULL, NULL);
+	return WriteFile(*hOutputCommPort, frame, len, NULL, NULL);
 	
 	// wait for event imbedded in overlapped struct
 	//int result = WaitForSingleObject(hWriteComplete, TIMEOUT);
